@@ -1,24 +1,161 @@
-﻿using System.Text;
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 
 namespace planirovshik_v0._1
 {
-    /// <summary>
-    /// Interaction logic for MainWindow.xaml
-    /// </summary>
     public partial class MainWindow : Window
     {
+        private readonly TaskController _controller = new();
+        private readonly JsonTaskSaver _saver = new();
+        private readonly string _tasksPath;
+
         public MainWindow()
         {
             InitializeComponent();
+
+            _tasksPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "tasks.json");
+
+            LoadTasks();
+            InitStatusFilter();
+            InitSortCombo();
+            RefreshTaskList();
+
+            Closing += MainWindow_Closing;
+        }
+
+        private void LoadTasks()
+        {
+            List<TaskItem> loaded = _saver.Load(_tasksPath);
+            foreach (var t in loaded)
+                _controller.Add(t);
+        }
+
+        private void MainWindow_Closing(object? sender, System.ComponentModel.CancelEventArgs e)
+        {
+            _saver.Save(_controller.Tasks.ToList(), _tasksPath);
+        }
+
+        private void InitStatusFilter()
+        {
+            StatusFilterCombo.Items.Add("Все");
+            foreach (TaskStatus st in Enum.GetValues(typeof(TaskStatus)))
+                StatusFilterCombo.Items.Add(st);
+            StatusFilterCombo.SelectedIndex = 0;
+        }
+
+        private void InitSortCombo()
+        {
+
+        }
+
+        private TaskStatus? GetSelectedStatusFilter()
+        {
+            if (StatusFilterCombo.SelectedIndex <= 0)
+                return null;
+            return (TaskStatus)StatusFilterCombo.SelectedItem;
+        }
+
+        private string GetSortTag()
+        {
+            if (SortCombo.SelectedItem is not ComboBoxItem item || item.Tag == null)
+                return "None";
+            return item.Tag.ToString() ?? "None";
+        }
+
+        private void RefreshTaskList()
+        {
+            var status = GetSelectedStatusFilter();
+            IEnumerable<TaskItem> view = _controller.GetFiltered(status);
+
+            switch (GetSortTag())
+            {
+                case "Date":
+                    view = view.OrderBy(t => t.DueDate);
+                    break;
+                case "Priority":
+                    view = view.OrderByDescending(t => t.Priority);
+                    break;
+            }
+
+            TaskList.ItemsSource = view.ToList();
+        }
+
+        private TaskItem? GetSelectedTask() => TaskList.SelectedItem as TaskItem;
+
+        //фильтр и сортировка
+
+        private void StatusFilterCombo_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (IsInitialized) RefreshTaskList();
+        }
+
+        private void SortCombo_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (IsInitialized) RefreshTaskList();
+        }
+
+        private void AddButton_Click(object sender, RoutedEventArgs e)
+        {
+            var task = new TaskItem
+            {
+                Title = "Новая задача",
+                Description = "",
+                DueDate = DateTime.Today,
+                Priority = TaskPriority.Medium,
+                Status = TaskStatus.Planned
+            };
+            _controller.Add(task);
+            RefreshTaskList();
+        }
+
+        private void EditButton_Click(object sender, RoutedEventArgs e)
+        {
+            var task = GetSelectedTask();
+            if (task == null)
+            {
+                MessageBox.Show("выберите задачу для редактирования.");
+                return;
+            }
+
+            task.Title += " (edit)";
+            RefreshTaskList();
+        }
+
+        private void DeleteButton_Click(object sender, RoutedEventArgs e)
+        {
+            var task = GetSelectedTask();
+            if (task == null)
+            {
+                MessageBox.Show("выберите задачу для удаления.");
+                return;
+            }
+
+            if (MessageBox.Show("удалить выбранную задачу?", "удаление",
+                MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
+            {
+                _controller.Remove(task);
+                RefreshTaskList();
+            }
+        }
+
+        private void DoneButton_Click(object sender, RoutedEventArgs e)
+        {
+            var task = GetSelectedTask();
+            if (task == null) return;
+            task.Status = TaskStatus.Done;
+            RefreshTaskList();
+        }
+
+        private void PostponeButton_Click(object sender, RoutedEventArgs e)
+        {
+            var task = GetSelectedTask();
+            if (task == null) return;
+            task.Status = TaskStatus.Postponed;
+            RefreshTaskList();
         }
     }
 }
