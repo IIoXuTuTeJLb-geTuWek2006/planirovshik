@@ -157,16 +157,14 @@ namespace planirovshik_v0._1
         {
             var task = GetSelectedTask();
             if (task == null) return;
-            task.Status = TaskStatus.Done;
-            RefreshTaskList();
+            _controller.SetStatus(task, TaskStatus.Done);
         }
 
         private void PostponeButton_Click(object sender, RoutedEventArgs e)
         {
             var task = GetSelectedTask();
             if (task == null) return;
-            task.Status = TaskStatus.Postponed;
-            RefreshTaskList();
+            _controller.SetStatus(task, TaskStatus.Postponed);
         }
     }
 }

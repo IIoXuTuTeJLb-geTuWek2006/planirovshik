@@ -25,7 +25,12 @@ namespace planirovshik_v0._1
             _tasks.Remove(task);
             OnTasksChanged();
         }
-
+        public void SetStatus(TaskItem task, TaskStatus status)
+        {
+            if (!_tasks.Contains(task)) return;
+            task.Status = status;
+            OnTasksChanged();
+        }
         public IEnumerable<TaskItem> GetFiltered(TaskStatus? statusFilter)
         {
             IEnumerable<TaskItem> q = _tasks;
