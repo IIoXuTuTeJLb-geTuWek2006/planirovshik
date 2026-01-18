@@ -35,10 +35,8 @@ namespace planirovshik_v0._1
         }
         public IEnumerable<TaskItem> GetFiltered(TaskStatus? statusFilter)
         {
-            IEnumerable<TaskItem> q = _tasks;
-            if (statusFilter != null)
-                q = q.Where(t => t.Status == statusFilter);
-            return q;
+            ITaskFilter filter = new StatusTaskFilter(statusFilter);
+            return filter.Apply(_tasks);
         }
     }
 }
