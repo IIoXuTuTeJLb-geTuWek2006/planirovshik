@@ -9,8 +9,22 @@ namespace planirovshik_v0._1
 
         public IReadOnlyList<TaskItem> Tasks => _tasks;
 
-        public void Add(TaskItem task) => _tasks.Add(task);
-        public void Remove(TaskItem task) => _tasks.Remove(task);
+        public event EventHandler? TasksChanged;
+
+        private void OnTasksChanged()
+            => TasksChanged?.Invoke(this, EventArgs.Empty);
+
+        public void Add(TaskItem task)
+        {
+            _tasks.Add(task);
+            OnTasksChanged();
+        }
+
+        public void Remove(TaskItem task)
+        {
+            _tasks.Remove(task);
+            OnTasksChanged();
+        }
 
         public IEnumerable<TaskItem> GetFiltered(TaskStatus? statusFilter)
         {
