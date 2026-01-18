@@ -105,15 +105,20 @@ namespace planirovshik_v0._1
         {
             var task = new TaskItem
             {
-                Title = "Новая задача",
+                Title = "новая задача",
                 Description = "",
                 DueDate = DateTime.Today,
                 Priority = TaskPriority.Medium,
                 Status = TaskStatus.Planned
             };
-            _controller.Add(task);
-            RefreshTaskList();
+
+            var dlg = new TaskEditWindow(task) { Owner = this };
+            if (dlg.ShowDialog() == true)
+            {
+                _controller.Add(task);
+            }
         }
+
 
         private void EditButton_Click(object sender, RoutedEventArgs e)
         {
@@ -124,8 +129,11 @@ namespace planirovshik_v0._1
                 return;
             }
 
-            task.Title += " (edit)";
-            RefreshTaskList();
+            var dlg = new TaskEditWindow(task) { Owner = this };
+            if (dlg.ShowDialog() == true)
+            {
+                RefreshTaskList();
+            }
         }
 
         private void DeleteButton_Click(object sender, RoutedEventArgs e)
