@@ -19,8 +19,8 @@
 
             <TextBlock Text="Сортировка:" VerticalAlignment="Center" Margin="0 0 4 0"/>
             <ComboBox x:Name="SortCombo"
-                      Width="200"
-                      SelectionChanged="SortCombo_SelectionChanged">
+                    Width="200"
+                    SelectionChanged="SortCombo_SelectionChanged">
                 <ComboBoxItem Content="Без сортировки" Tag="None" IsSelected="True"/>
                 <ComboBoxItem Content="По дате (раньше → позже)" Tag="Date"/>
                 <ComboBoxItem Content="По приоритету (высокий → низкий)" Tag="Priority"/>
@@ -35,7 +35,8 @@
                 <GridView>
                     <GridViewColumn Header="Заголовок" Width="220" DisplayMemberBinding="{Binding Title}"/>
                     <GridViewColumn Header="Описание" Width="260" DisplayMemberBinding="{Binding Description}"/>
-                    <GridViewColumn Header="Срок" Width="110" DisplayMemberBinding="{Binding DueDate, StringFormat=d}"/>
+                    <GridViewColumn Header="Срок" Width="110"
+                        DisplayMemberBinding="{Binding DueDate, StringFormat='{}{0:dd.MM.yyyy}'}"/>
                     <GridViewColumn Header="Приоритет" Width="90" DisplayMemberBinding="{Binding Priority}"/>
                     <GridViewColumn Header="Статус" Width="110" DisplayMemberBinding="{Binding Status}"/>
                 </GridView>
