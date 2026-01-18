@@ -19,7 +19,11 @@ namespace planirovshik_v0._1
 
             _tasksPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "tasks.json");
 
-            _controller.TasksChanged += (_, __) => RefreshTaskList();
+            _controller.TasksChanged += (_, __) =>
+            {
+                RefreshTaskList();
+                _saver.Save(_controller.Tasks.ToList(), _tasksPath);
+            };
 
             LoadTasks();
             InitStatusFilter();
