@@ -25,6 +25,8 @@ namespace planirovshik_v0._1
             _tasks.Remove(task);
             OnTasksChanged();
         }
+        public void Clear() => _tasks.Clear();
+
         public void SetStatus(TaskItem task, TaskStatus status)
         {
             if (!_tasks.Contains(task)) return;

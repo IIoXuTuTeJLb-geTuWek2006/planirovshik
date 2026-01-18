@@ -43,9 +43,16 @@
         </ListView>
 
         <StackPanel Grid.Row="2"
-                    Orientation="Horizontal"
-                    HorizontalAlignment="Right"
-                    Margin="0 8 0 0">
+            Orientation="Horizontal"
+            HorizontalAlignment="Right"
+            Margin="0 8 0 0">
+            <Button Content="Открыть..."
+            Width="80"
+            Click="OpenFileButton_Click"/>
+            <Button Content="Сохранить как..."
+            Width="110" Margin="0 0 18 0"
+            Click="SaveAsButton_Click"/>
+
             <Button Content="Добавить"
                     Width="90" Margin="0 0 6 0"
                     Click="AddButton_Click"/>

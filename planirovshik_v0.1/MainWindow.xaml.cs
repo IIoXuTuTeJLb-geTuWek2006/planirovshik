@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Microsoft.Win32;
 using System.IO;
 using System.Linq;
 using System.Windows;
@@ -11,7 +12,7 @@ namespace planirovshik_v0._1
     {
         private readonly TaskController _controller = new();
         private readonly JsonTaskSaver _saver = new();
-        private readonly string _tasksPath;
+        private string _tasksPath;
 
         public MainWindow()
         {
@@ -169,6 +170,43 @@ namespace planirovshik_v0._1
             var task = GetSelectedTask();
             if (task == null) return;
             _controller.SetStatus(task, TaskStatus.Postponed);
+        }
+        private void OpenFileButton_Click(object sender, RoutedEventArgs e)
+        {
+            var dialog = new OpenFileDialog
+            {
+                Title = "Выберите файл задач",
+                Filter = "JSON файлы (*.json)|*.json|Все файлы (*.*)|*.*",
+                FileName = Path.GetFileName(_tasksPath)
+            };
+
+            if (dialog.ShowDialog() == true)
+            {
+                _tasksPath = dialog.FileName;
+
+                // очищаем текущие задачи и загружаем новые
+                _controller.Clear();
+                var loaded = _saver.Load(_tasksPath);
+                foreach (var t in loaded)
+                    _controller.Add(t);
+
+                RefreshTaskList();
+            }
+        }
+        private void SaveAsButton_Click(object sender, RoutedEventArgs e)
+        {
+            var dialog = new SaveFileDialog
+            {
+                Title = "Сохранить задачи как",
+                Filter = "JSON файлы (*.json)|*.json|Все файлы (*.*)|*.*",
+                FileName = Path.GetFileName(_tasksPath)
+            };
+
+            if (dialog.ShowDialog() == true)
+            {
+                _tasksPath = dialog.FileName;
+                _saver.Save(_controller.Tasks.ToList(), _tasksPath);
+            }
         }
     }
 }
