@@ -79,15 +79,15 @@ namespace planirovshik_v0._1
             var status = GetSelectedStatusFilter();
             IEnumerable<TaskItem> view = _controller.GetFiltered(status);
 
-            switch (GetSortTag())
+            ITaskSorter? sorter = GetSortTag() switch
             {
-                case "Date":
-                    view = view.OrderBy(t => t.DueDate);
-                    break;
-                case "Priority":
-                    view = view.OrderByDescending(t => t.Priority);
-                    break;
-            }
+                "Date" => new DateTaskSorter(),
+                "Priority" => new PriorityTaskSorter(),
+                _ => null
+            };
+
+            if (sorter != null)
+                view = sorter.Sort(view);
 
             TaskList.ItemsSource = view.ToList();
         }
@@ -154,7 +154,6 @@ namespace planirovshik_v0._1
                 MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
             {
                 _controller.Remove(task);
-                RefreshTaskList();
             }
         }
 
